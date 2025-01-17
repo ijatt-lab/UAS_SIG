@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>WebGIS - Jakarta Barat Tourism Locator</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+      html, body, #map {
+        height: 100%;
+        margin: 0;
+        font-family: Arial, sans-serif;
+      }
+
+      .popup-content {
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      .popup-header {
+        font-weight: bold;
+        font-size: 16px;
+        color: #2c3e50;
+      }
+
+      .popup-image {
+        width: 100%;
+        height: auto;
+        border-radius: 5px;
+        margin-bottom: 10px;
+      }
+
+      .leaflet-popup-content {
+        width: 250px !important;
+      }
+
+      .custom-icon {
+        background-color: white;
+        border-radius: 50%;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+      }
+
+      .nav-link {
+        color: #007bff;
+        text-decoration: none;
+        font-weight: bold;
+      }
+
+      .nav-link:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+
+    <script>
+      // Initialize the map
+      var map = L.map("map").setView([-6.1679, 106.7583], 13);
+
+      // Add a modern basemap
+      var basemap = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
+
+      // Define a custom tourism icon
+      var tourismIcon = L.icon({
+        iconUrl: "https://cdn-icons-png.flaticon.com/512/854/854878.png",
+        iconSize: [40, 40],
+        iconAnchor: [20, 40],
+        popupAnchor: [0, -40]
+      });
+
+      // Marker data for 30 tourist attractions in West Jakarta
+      var markers = [
+        {
+          coords: [-6.136394, 106.813201],
+          name: "Museum Fatahillah",
+          address: "Jalan Taman Fatahillah No.1, Kota Tua, Jakarta",
+          image: "https://source.unsplash.com/250x150/?museum",
+          link: "https://goo.gl/maps/5TGyUffnXb62"
+        },
+        {
+          coords: [-6.1352, 106.8121],
+          name: "Museum Wayang",
+          address: "Jl. Pintu Besar Utara No.27, Kota Tua, Jakarta",
+          image: "https://source.unsplash.com/250x150/?puppet",
+          link: "https://goo.gl/maps/7oBbMm8QFkk"
+        },
+        {
+          coords: [-6.1332, 106.8139],
+          name: "Museum Bank Indonesia",
+          address: "Jl. Lada No.3, Kota Tua, Jakarta",
+          image: "https://source.unsplash.com/250x150/?bank",
+          link: "https://goo.gl/maps/xYpDg6ghR7P2"
+        },
+        {
+          coords: [-6.1378, 106.8123],
+          name: "Museum Seni Rupa dan Keramik",
+          address: "Jl. Pos Kota No.2, Kota Tua, Jakarta",
+          image: "https://source.unsplash.com/250x150/?art",
+          link: "https://goo.gl/maps/6TkZHvf9VmM2"
+        },
+        {
+          coords: [-6.1383, 106.8130],
+          name: "Kota Tua",
+          address: "Jalan Taman Fatahillah, Jakarta",
+          image: "https://source.unsplash.com/250x150/?city",
+          link: "https://goo.gl/maps/7nqU4qGRsLA2"
+        },
+        {
+          coords: [-6.1395, 106.8167],
+          name: "Pelabuhan Sunda Kelapa",
+          address: "Jl. Maritim No.8, Jakarta",
+          image: "https://source.unsplash.com/250x150/?port",
+          link: "https://goo.gl/maps/Xd9VEFJzCHu"
+        },
+        {
+          coords: [-6.1602, 106.7916],
+          name: "Taman Cattleya",
+          address: "Jl. Letjen S. Parman, Slipi, Jakarta",
+          image: "https://source.unsplash.com/250x150/?park",
+          link: "https://goo.gl/maps/dRgzXfvX95B2"
+        },
+        {
+          coords: [-6.1767, 106.7903],
+          name: "Mall Taman Anggrek",
+          address: "Jl. Letjen S. Parman No.28, Jakarta",
+          image: "https://source.unsplash.com/250x150/?mall",
+          link: "https://goo.gl/maps/xJt8FkGd3rk"
+        },
+        {
+          coords: [-6.1794, 106.7901],
+          name: "Central Park Mall",
+          address: "Jl. Letjen S. Parman No.28, Jakarta",
+          image: "https://source.unsplash.com/250x150/?shopping",
+          link: "https://goo.gl/maps/L4f8nLg5oeu"
+        },
+        {
+          coords: [-6.1538, 106.7791],
+          name: "Taman Krida Loka",
+          address: "Jl. Taman Wijaya Kusuma, Jakarta",
+          image: "https://source.unsplash.com/250x150/?garden",
+          link: "https://goo.gl/maps/8mNHoLbJt9z"
+        },
+        {
+          coords: [-6.1553, 106.7822],
+          name: "Tribeca Park",
+          address: "Jl. Letjen S. Parman, Jakarta",
+          image: "https://source.unsplash.com/250x150/?green",
+          link: "https://goo.gl/maps/pGvKyNbg6A72"
+        },
+        {
+          coords: [-6.1536, 106.7645],
+          name: "Waterbom Jakarta",
+          address: "Jl. Pantai Indah Barat No.1, PIK, Jakarta",
+          image: "https://source.unsplash.com/250x150/?waterpark",
+          link: "https://goo.gl/maps/2pqT8rJtq7J2"
+        },
+        {
+          coords: [-6.1579, 106.7722],
+          name: "Pasar Glodok",
+          address: "Jl. Pancoran, Jakarta",
+          image: "https://source.unsplash.com/250x150/?market",
+          link: "https://goo.gl/maps/kdf9kJ9f1dH2"
+        },
+        {
+          coords: [-6.1427, 106.8039],
+          name: "Neo Soho Mall",
+          address: "Jl. Letjen S. Parman No.28, Jakarta",
+          image: "https://source.unsplash.com/250x150/?shopping",
+          link: "https://goo.gl/maps/vhYpJtqhBk72"
+        },
+        {
+          coords: [-6.1638, 106.7814],
+          name: "Masjid Hasyim Asy'ari",
+          address: "Jl. Daan Mogot, Jakarta",
+          image: "https://source.unsplash.com/250x150/?mosque",
+          link: "https://goo.gl/maps/tfKp2pLr9Z72"
+        },
+        {
+          coords: [-6.1345, 106.8169],
+          name: "Museum Tekstil",
+          address: "Jl. K.S. Tubun No.4, Jakarta",
+          image: "https://source.unsplash.com/250x150/?textile",
+          link: "https://goo.gl/maps/bNqFyRtJrLK2"
+        },
+        {
+          coords: [-6.1204, 106.8042],
+          name: "Taman Kalijodo",
+          address: "Jl. Kepanduan II, Jakarta",
+          image: "https://source.unsplash.com/250x150/?park",
+          link: "https://goo.gl/maps/YfyhJpLKzRp"
+        },
+        {
+          coords: [-6.1211, 106.8127],
+          name: "Rumah Akar",
+          address: "Jl. Kali Besar Timur, Jakarta",
+          image: "https://source.unsplash.com/250x150/?house",
+          link: "https://goo.gl/maps/XyV2MJP2B2k"
+        },
+        {
+          coords: [-6.1223, 106.8055],
+          name: "Taman Tomang",
+          address: "Jl. Tomang Raya, Jakarta",
+          image: "https://source.unsplash.com/250x150/?garden",
+          link: "https://goo.gl/maps/dP2Fyk3J72j"
+        },
+        {
+          coords: [-6.1245, 106.7988],
+          name: "Taman Semanggi",
+          address: "Jl. Gatot Subroto, Jakarta",
+          image: "https://source.unsplash.com/250x150/?greenery",
+          link: "https://goo.gl/maps/P5qLyJNQF4d"
+        },
+        {
+          coords: [-6.1156, 106.7898],
+          name: "Pasar Asemka",
+          address: "Jl. Asemka, Jakarta",
+          image: "https://source.unsplash.com/250x150/?trade",
+          link: "https://goo.gl/maps/V2RkjN4d2rK"
+        },
+        {
+          coords: [-6.1213, 106.8121],
+          name: "Hotel Indonesia Circle",
+          address: "Jakarta Barat",
+          image: "https://source.unsplash.com/250x150/?cityscape",
+          link: "https://goo.gl/maps/R1FqJHq2Bp"
+        },
+        {
+          coords: [-6.1322, 106.8022],
+          name: "Gedung Arsip Nasional",
+          address: "Jl. Gajah Mada No.111, Jakarta",
+          image: "https://source.unsplash.com/250x150/?history",
+          link: "https://goo.gl/maps/Tq2F4KJLp72"
+        },
+        {
+          coords: [-6.1413, 106.8112],
+          name: "Glodok Chinatown",
+          address: "Jl. Pancoran, Glodok, Jakarta",
+          image: "https://source.unsplash.com/250x150/?chinatown",
+          link: "https://goo.gl/maps/7QP5NH29Gg"
+        },
+        {
+          coords: [-6.1534, 106.8113],
+          name: "Jakarta Aquarium",
+          address: "Neo Soho Mall, Jakarta",
+          image: "https://source.unsplash.com/250x150/?aquarium",
+          link: "https://goo.gl/maps/5Bf3XpZy37q"
+        },
+        {
+          coords: [-6.1543, 106.8131],
+          name: "Ancol Dreamland",
+          address: "Jl. Lodan Timur, Jakarta",
+          image: "https://source.unsplash.com/250x150/?themepark",
+          link: "https://goo.gl/maps/T9qKPJL24k"
+        },
+        {
+          coords: [-6.1456, 106.8199],
+          name: "Mangrove Angke Kapuk",
+          address: "Jl. Garden House, Jakarta",
+          image: "https://source.unsplash.com/250x150/?mangrove",
+          link: "https://goo.gl/maps/Kq3RNJpKLbQ"
+        },
+        {
+          coords: [-6.1565, 106.7912],
+          name: "Roxy Mas",
+          address: "Jl. KH. Hasyim Ashari, Jakarta",
+          image: "https://source.unsplash.com/250x150/?shopping",
+          link: "https://goo.gl/maps/JHq7PLk9NpQ"
+        },
+        {
+          coords: [-6.1505, 106.8115],
+          name: "Jakarta History Museum",
+          address: "Jl. Taman Fatahillah No.1, Jakarta",
+          image: "https://source.unsplash.com/250x150/?history",
+          link: "https://goo.gl/maps/Pk7NfRq3Vp"
+        },
+        {
+          coords: [-6.1337, 106.8135],
+          name: "Fish Market",
+          address: "Jakarta Kota",
+          image: "https://source.unsplash.com/250x150/?fishmarket",
+          link: "https://goo.gl/maps/Fy2JNRkLp9"
+        }
+      ];
+
+      // Add markers with tooltips
+      markers.forEach(function(marker) {
+        var tooltip = L.marker(marker.coords, { icon: tourismIcon })
+          .bindTooltip(marker.name, {
+            permanent: true,
+            direction: "top",
+            className: "custom-tooltip"
+          })
+          .addTo(map);
+
+        tooltip.bindPopup(`
+          <div class="popup-content">
+            <div class="popup-header">${marker.name}</div>
+            <img class="popup-image" src="${marker.image}" alt="${marker.name}" />
+            <p>${marker.address}</p>
+            <a class="nav-link" href="${marker.link}" target="_blank">Navigate to Location</a>
+          </div>
+        `);
+      });
+    </script>
+  </body>
+</html>
